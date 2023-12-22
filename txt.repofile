@@ -1,0 +1,14 @@
+// Include the string library
+#include <string>
+
+// Create a string variable
+string greeting = "Hello";
+string firstName = "John ";
+string lastName = "Doe";
+string fullName = firstName + lastName;
+cout << fullName;
+// Include the string library
+#include <string>
+
+// Create a string variable
+string greeting = "Hello";
