@@ -1,0 +1,58 @@
+CREATE TABLE STATION
+(ID INTEGER PRIMARY KEY,
+CITY CHAR(20),
+STATE CHAR(2),
+LAT_N REAL,
+LONG_W REAL);
+CREATE TABLE STATS
+(ID INTEGER REFERENCES STATION(ID),
+MONTH INTEGER CHECK (MONTH BETWEEN 1 AND 12),
+TEMP_F REAL CHECK (TEMP_F BETWEEN -80 AND 150),
+RAIN_I REAL CHECK (RAIN_I BETWEEN 0 AND 100),
+PRIMARY KEY (ID, MONTH));
+
+
+
+INSERT INTO STATS VALUES (44, 7, 74.8, 2.11);
+INSERT INTO STATS VALUES (66, 1, 6.7, 2.10);
+INSERT INTO STATS VALUES (66, 7, 65.8, 4.52);
+
+EXEC SQL BEGIN DECLARE SECTION;
+
+long station_id;
+long mon;
+float temp;
+float rain;
+char city_name[21];
+long SQLCODE;
+EXEC SQL END DECLARE SECTION;
+main()
+{
+/* the CONNECT statement, if needed, goes here */
+strcpy(city_name,"Denver");
+EXEC SQL SELECT ID INTO :station_id
+FROM STATION
+WHERE CITY = :city_name;
+if (SQLCODE == 100)
+{
+printf("There is no station for city %s\n",city_name);
+exit(0);
+}
+printf("For the city %s, Station ID is %ld\n",city_name,station_id); 
+printf("And here is the weather data:\n");
+EXEC SQL DECLARE XYZ CURSOR FOR
+SELECT MONTH, TEMP_F, RAIN_I
+FROM STATS
+WHERE ID = :station_id
+ORDER BY MONTH;
+EXEC SQL OPEN XYZ;
+while (SQLCODE != 100) {
+EXEC SQL FETCH XYZ INTO :mon, :temp, :rain;
+if (SQLCODE == 100)
+printf("end of list\n");
+else
+printf("month = %ld, temperature = %f, rainfall = %f\n",mon,temp,rain);
+}
+EXEC SQL CLOSE XYZ;
+exit(0);
+}
